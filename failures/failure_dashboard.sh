@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Dashboard de Falhas SFCC
-echo "🚨 Dashboard de Falhas do Salesforce Commerce Cloud"
+# SFCC Failure Dashboard
+echo "🚨 Salesforce Commerce Cloud Failure Dashboard"
 echo ""
 
-# Cores
+# Colours
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
@@ -13,35 +13,35 @@ NC='\033[0m'
 
 show_dashboard() {
     clear
-    echo -e "${BLUE}=== DASHBOARD DE FALHAS SFCC ===${NC}"
+    echo -e "${BLUE}=== SFCC FAILURE DASHBOARD ===${NC}"
     echo ""
     
-    # Estatísticas em tempo real
+    # Real-time statistics
     ACTIVE_FAILURES=$(ls -1 *.json 2>/dev/null | grep -v resolved | wc -l)
     RESOLVED_TODAY=$(find . -name "resolved_*.json" -mtime -1 | wc -l)
     CRITICAL_FAILURES=$(grep -l '"severity":"HIGH"' *.json 2>/dev/null | wc -l)
     
-    # Sistema de cores para status
+    # Colour system for status
     if [ "$ACTIVE_FAILURES" -gt 10 ]; then
         FAILURE_COLOR=$RED
-        STATUS="CRÍTICO"
+        STATUS="CRITICAL"
     elif [ "$ACTIVE_FAILURES" -gt 5 ]; then
         FAILURE_COLOR=$YELLOW
-        STATUS="ALERTA"
+        STATUS="WARNING"
     else
         FAILURE_COLOR=$GREEN
         STATUS="NORMAL"
     fi
     
-    echo -e "📊 ${YELLOW}ESTADO DO SISTEMA:${NC} ${FAILURE_COLOR}$STATUS${NC}"
+    echo -e "📊 ${YELLOW}SYSTEM STATUS:${NC} ${FAILURE_COLOR}$STATUS${NC}"
     echo ""
-    echo -e "  🔴 Falhas Ativas: ${FAILURE_COLOR}$ACTIVE_FAILURES${NC}"
-    echo -e "  🟡 Críticas: $CRITICAL_FAILURES"
-    echo -e "  🟢 Resolvidas Hoje: $RESOLVED_TODAY"
+    echo -e "  🔴 Active Failures: ${FAILURE_COLOR}$ACTIVE_FAILURES${NC}"
+    echo -e "  🟡 Critical: $CRITICAL_FAILURES"
+    echo -e "  🟢 Resolved Today: $RESOLVED_TODAY"
     echo ""
     
-    # Lista de falhas ativas
-    echo -e "${YELLOW}🚨 FALHAS ATIVAS:${NC}"
+    # List of active failures
+    echo -e "${YELLOW}🚨 ACTIVE FAILURES:${NC}"
     echo ""
     
     ls -1t *.json 2>/dev/null | grep -v resolved | head -10 | while read file; do
@@ -58,15 +58,15 @@ show_dashboard() {
         
         echo -e "  ${SEV_COLOR}●${NC} $TYPE"
         echo -e "     ID: $FAILURE_ID"
-        echo -e "     Severidade: ${SEV_COLOR}$SEVERITY${NC}"
-        echo -e "     Hora: $TIMESTAMP"
+        echo -e "     Severity: ${SEV_COLOR}$SEVERITY${NC}"
+        echo -e "     Time: $TIMESTAMP"
         echo ""
     done
     
     # SLA Status
-    echo -e "${YELLOW}⏱️  STATUS DO SLA:${NC}"
+    echo -e "${YELLOW}⏱️  SLA STATUS:${NC}"
     
-    # Calcular tempo médio de resolução
+    # Calculate average resolution time
     TOTAL_TIME=0
     RESOLVED_COUNT=0
     
@@ -88,24 +88,24 @@ show_dashboard() {
         
         if [ $AVG_MINUTES -lt 30 ]; then
             SLA_COLOR=$GREEN
-            SLA_STATUS="DENTRO DO SLA"
+            SLA_STATUS="WITHIN SLA"
         elif [ $AVG_MINUTES -lt 60 ]; then
             SLA_COLOR=$YELLOW
-            SLA_STATUS="ATENÇÃO"
+            SLA_STATUS="ATTENTION"
         else
             SLA_COLOR=$RED
-            SLA_STATUS="FORA DO SLA"
+            SLA_STATUS="OUTSIDE SLA"
         fi
         
-        echo -e "  Tempo Médio de Resolução: ${SLA_COLOR}$AVG_MINUTES minutos${NC}"
+        echo -e "  Average Resolution Time: ${SLA_COLOR}$AVG_MINUTES minutes${NC}"
         echo -e "  Status: ${SLA_COLOR}$SLA_STATUS${NC}"
     else
-        echo "  Sem dados suficientes para calcular SLA"
+        echo "  Not enough data to calculate SLA"
     fi
 }
 
 auto_triage() {
-    echo -e "${BLUE}🤖 Iniciando Triagem Automática...${NC}"
+    echo -e "${BLUE}🤖 Starting Automatic Triage...${NC}"
     echo ""
     
     TRIAGED=0
@@ -114,16 +114,16 @@ auto_triage() {
         
         ERROR_CODE=$(grep -o '"error_code":"[^"]*"' "$file" | cut -d'"' -f4)
         
-        # Regras de triagem automática
+        # Automatic triage rules
         case $ERROR_CODE in
             PAY_1*)
-                echo "🔧 Aplicando correção para $ERROR_CODE..."
+                echo "🔧 Applying fix for $ERROR_CODE..."
                 sed -i 's/"retry_count":0/"retry_count":1/' "$file"
                 sed -i '/"error_message"/a\    "auto_triage": "Payment validation rules updated",' "$file"
                 TRIAGED=$((TRIAGED + 1))
                 ;;
             ERR_50*)
-                echo "🔧 Aplicando correção para $ERROR_CODE..."
+                echo "🔧 Applying fix for $ERROR_CODE..."
                 sed -i 's/"retry_count":0/"retry_count":1/' "$file"
                 sed -i '/"error_message"/a\    "auto_triage": "API timeout increased",' "$file"
                 TRIAGED=$((TRIAGED + 1))
@@ -131,66 +131,66 @@ auto_triage() {
         esac
     done
     
-    echo -e "${GREEN}✅ $TRIAGED falhas triadas automaticamente${NC}"
+    echo -e "${GREEN}✅ $TRIAGED failures triaged automatically${NC}"
 }
 
 generate_sla_report() {
-    echo -e "${BLUE}📊 Gerando Relatório de SLA...${NC}"
+    echo -e "${BLUE}📊 Generating SLA Report...${NC}"
     
     REPORT="sla_report_$(date +%Y%m%d).txt"
     
     {
-        echo "=== RELATÓRIO DE SLA - SFCC SUPPORT ==="
-        echo "Período: $(date)"
+        echo "=== SLA REPORT - SFCC SUPPORT ==="
+        echo "Period: $(date)"
         echo ""
         
-        echo "📈 MÉTRICAS DE DESEMPENHO"
-        echo "Falhas Resolvidas: $(find . -name "resolved_*.json" -mtime -1 | wc -l)"
-        echo "Falhas Pendentes: $(ls -1 *.json 2>/dev/null | grep -v resolved | wc -l)"
-        echo "Tempo Médio de Resolução: $AVG_MINUTES minutos"
+        echo "📈 PERFORMANCE METRICS"
+        echo "Failures Resolved: $(find . -name "resolved_*.json" -mtime -1 | wc -l)"
+        echo "Pending Failures: $(ls -1 *.json 2>/dev/null | grep -v resolved | wc -l)"
+        echo "Average Resolution Time: $AVG_MINUTES minutes"
         echo ""
         
-        echo "🎯 ATINGIMENTO DE SLA"
+        echo "🎯 SLA ACHIEVEMENT"
         
-        # Calcular taxa de sucesso
+        # Calculate success rate
         TOTAL_FAILURES=$(( $(find . -name "resolved_*.json" -mtime -7 | wc -l) + $(ls -1 *.json 2>/dev/null | grep -v resolved | wc -l) ))
         
         if [ $TOTAL_FAILURES -gt 0 ]; then
             SLA_RATE=$(echo "scale=1; $(find . -name "resolved_*.json" -mtime -7 | wc -l) * 100 / $TOTAL_FAILURES" | bc)
             
             if (( $(echo "$SLA_RATE >= 95" | bc -l) )); then
-                echo "✅ EXCELENTE: $SLA_RATE% dentro do SLA"
+                echo "✅ EXCELLENT: $SLA_RATE% within SLA"
             elif (( $(echo "$SLA_RATE >= 85" | bc -l) )); then
-                echo "⚠️  BOM: $SLA_RATE% dentro do SLA"
+                echo "⚠️  GOOD: $SLA_RATE% within SLA"
             else
-                echo "❌ PRECISA MELHORAR: $SLA_RATE% dentro do SLA"
+                echo "❌ NEEDS IMPROVEMENT: $SLA_RATE% within SLA"
             fi
         fi
         
         echo ""
-        echo "📋 RECOMENDAÇÕES"
-        echo "1. Monitorar falhas do tipo PAY_1XX mais de perto"
-        echo "2. Implementar retry automático para ERROS 50X"
-        echo "3. Revisar configurações de timeout da API"
+        echo "📋 RECOMMENDATIONS"
+        echo "1. Monitor PAY_1XX type failures more closely"
+        echo "2. Implement automatic retry for 50X ERRORS"
+        echo "3. Review API timeout settings"
     } > "$REPORT"
     
-    echo -e "${GREEN}✅ Relatório gerado: $REPORT${NC}"
+    echo -e "${GREEN}✅ Report generated: $REPORT${NC}"
 }
 
-# Menu principal
+# Main menu
 while true; do
     show_dashboard
     
     echo ""
-    echo -e "${BLUE}⚡ AÇÕES RÁPIDAS:${NC}"
-    echo "1. Atualizar Dashboard"
-    echo "2. Triagem Automática"
-    echo "3. Gerar Relatório de SLA"
-    echo "4. Ver Todas as Falhas"
-    echo "5. Sair"
+    echo -e "${BLUE}⚡ QUICK ACTIONS:${NC}"
+    echo "1. Refresh Dashboard"
+    echo "2. Automatic Triage"
+    echo "3. Generate SLA Report"
+    echo "4. View All Failures"
+    echo "5. Exit"
     echo ""
     
-    read -p "Escolha (1-5): " choice
+    read -p "Choose (1-5): " choice
     
     case $choice in
         1) continue ;;
@@ -198,7 +198,7 @@ while true; do
         3) generate_sla_report ;;
         4) 
             echo ""
-            echo "Todas as Falhas:"
+            echo "All Failures:"
             ls -1 *.json 2>/dev/null | while read file; do
                 echo "  - $(basename $file .json)"
             done
@@ -207,5 +207,5 @@ while true; do
     esac
     
     echo ""
-    read -p "Pressione Enter para continuar..."
+    read -p "Press Enter to continue..."
 done

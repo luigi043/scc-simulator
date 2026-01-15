@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# Gerenciador Avançado de Ordens SFCC
-echo "📦 Gerenciador de Ordens do Salesforce Commerce Cloud"
+# SFCC Advanced Order Manager
+echo "📦 Salesforce Commerce Cloud Order Manager"
 echo ""
 
-# Cores
+# Colours
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 view_orders() {
-    echo -e "${BLUE}📋 Lista de Ordens:${NC}"
+    echo -e "${BLUE}📋 Order List:${NC}"
     echo ""
     
     ls -1 *.json 2>/dev/null | while read file; do
@@ -29,15 +29,15 @@ view_orders() {
             *) COLOR=$NC ;;
         esac
         
-        echo -e "  $ORDER_ID - Cliente: $CUSTOMER - Total: \$$TOTAL - Status: ${COLOR}$STATUS${NC}"
+        echo -e "  $ORDER_ID - Customer: $CUSTOMER - Total: \$$TOTAL - Status: ${COLOR}$STATUS${NC}"
     done
 }
 
 search_order() {
-    read -p "🔍 Buscar (ID do Pedido, Cliente ou Status): " search_term
+    read -p "🔍 Search (Order ID, Customer or Status): " search_term
     
     echo ""
-    echo "Resultados da busca por '$search_term':"
+    echo "Search results for '$search_term':"
     echo ""
     
     FOUND=0
@@ -53,19 +53,19 @@ search_order() {
     done
     
     if [ $FOUND -eq 0 ]; then
-        echo "Nenhum pedido encontrado."
+        echo "No orders found."
     fi
 }
 
 bulk_operations() {
-    echo -e "${BLUE}⚡ Operações em Lote:${NC}"
+    echo -e "${BLUE}⚡ Batch Operations:${NC}"
     echo ""
-    echo "1. Cancelar todas as ordens pendentes"
-    echo "2. Reprocessar ordens falhas"
-    echo "3. Exportar ordens pagas"
-    echo "4. Gerar relatório CSV"
+    echo "1. Cancel all pending orders"
+    echo "2. Re-process failed orders"
+    echo "3. Export paid orders"
+    echo "4. Generate CSV report"
     echo ""
-    read -p "Escolha: " choice
+    read -p "Choose: " choice
     
     case $choice in
         1)
@@ -76,25 +76,25 @@ bulk_operations() {
                     COUNT=$((COUNT + 1))
                 fi
             done
-            echo "✅ $COUNT ordens canceladas"
+            echo "✅ $COUNT orders cancelled"
             ;;
         2)
             COUNT=0
             for file in *.json; do
                 if grep -q '"status":"FAILED"' "$file"; then
-                    # 80% chance de sucesso no reprocessamento
+                    # 80% chance of success in re-processing
                     if [ $((RANDOM % 10)) -lt 8 ]; then
                         sed -i 's/"status":"FAILED"/"status":"PAID"/' "$file"
-                        echo "✅ $(basename $file .json): Reprovado com sucesso"
+                        echo "✅ $(basename $file .json): Re-processed successfully"
                     else
-                        echo "❌ $(basename $file .json): Falha no reprocessamento"
+                        echo "❌ $(basename $file .json): Re-processing failed"
                     fi
                     COUNT=$((COUNT + 1))
                 fi
             done
             ;;
         3)
-            echo "Exportando ordens pagas..."
+            echo "Exporting paid orders..."
             mkdir -p exported_orders
             for file in *.json; do
                 if grep -q '"status":"PAID"' "$file"; then
@@ -102,10 +102,10 @@ bulk_operations() {
                     sed -i 's/"status":"PAID"/"status":"EXPORTED"/' "$file"
                 fi
             done
-            echo "✅ Ordens exportadas para pasta 'exported_orders/'"
+            echo "✅ Orders exported to 'exported_orders/' folder"
             ;;
         4)
-            echo "Gerando relatório CSV..."
+            echo "Generating CSV report..."
             echo "order_id,customer_id,status,total,created_at" > orders_report.csv
             for file in *.json; do
                 ORDER_ID=$(basename "$file" .json)
@@ -116,51 +116,51 @@ bulk_operations() {
                 
                 echo "$ORDER_ID,$CUSTOMER_ID,$STATUS,$TOTAL,$CREATED_AT" >> orders_report.csv
             done
-            echo "✅ Relatório gerado: orders_report.csv"
+            echo "✅ Report generated: orders_report.csv"
             ;;
     esac
 }
 
-# Menu principal
+# Main menu
 while true; do
     clear
-    echo -e "${BLUE}=== Gerenciador de Ordens SFCC ===${NC}"
+    echo -e "${BLUE}=== SFCC Order Manager ===${NC}"
     echo ""
-    echo "1. Visualizar Todas as Ordens"
-    echo "2. Buscar Ordem Específica"
-    echo "3. Ver Detalhes da Ordem"
-    echo "4. Operações em Lote"
-    echo "5. Voltar ao Menu Principal"
+    echo "1. View All Orders"
+    echo "2. Search for Specific Order"
+    echo "3. View Order Details"
+    echo "4. Batch Operations"
+    echo "5. Back to Main Menu"
     echo ""
     
     STATS=$(ls -1 *.json 2>/dev/null | wc -l)
     PENDING=$(grep -l '"status":"PENDING"' *.json 2>/dev/null | wc -l)
     FAILED=$(grep -l '"status":"FAILED"' *.json 2>/dev/null | wc -l)
     
-    echo -e "${YELLOW}📊 Estatísticas:${NC}"
-    echo "  Total: $STATS ordens"
-    echo "  Pendentes: $PENDING"
-    echo "  Falhas: $FAILED"
+    echo -e "${YELLOW}📊 Statistics:${NC}"
+    echo "  Total: $STATS orders"
+    echo "  Pending: $PENDING"
+    echo "  Failed: $FAILED"
     echo ""
     
-    read -p "Escolha: " choice
+    read -p "Choose: " choice
     
     case $choice in
         1) view_orders ;;
         2) search_order ;;
         3)
-            read -p "ID da Ordem: " order_id
+            read -p "Order ID: " order_id
             if [ -f "$order_id.json" ]; then
                 cat "$order_id.json" | python3 -m json.tool 2>/dev/null || cat "$order_id.json"
             else
-                echo "❌ Ordem não encontrada"
+                echo "❌ Order not found"
             fi
             ;;
         4) bulk_operations ;;
         5) exit 0 ;;
-        *) echo "Opção inválida" ;;
+        *) echo "Invalid option" ;;
     esac
     
     echo ""
-    read -p "Pressione Enter para continuar..."
+    read -p "Press Enter to continue..."
 done

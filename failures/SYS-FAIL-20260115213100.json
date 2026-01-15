@@ -1,0 +1,10 @@
+{
+    "failure_id": "SYS-FAIL-20260115213100",
+    "type": "TAX_CALCULATION_ERROR",
+    "error_code": "ERR_526",
+    "error_message": "System failure in TAX_CALCULATION_ERROR",
+    "severity": "MEDIUM",
+    "component": "sfcc-dw",
+    "timestamp": "2026-01-15T21:31:00Z",
+    "retry_count":1
+}

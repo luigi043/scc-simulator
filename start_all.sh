@@ -1,52 +1,52 @@
 #!/bin/bash
 
-# Inicializar todos os serviços SFCC
+# Initialise all SFCC services
 
-echo "🚀 Inicializando Salesforce Commerce Cloud Environment"
+echo "🚀 Initialising Salesforce Commerce Cloud Environment"
 echo ""
 
-# Cores
+# Colours
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Verificar se está no diretório correto
+# Check if in correct directory
 if [ ! -d "backend" ] || [ ! -d "scripts" ]; then
-    echo -e "${YELLOW}⚠️  Execute este script do diretório raiz do projeto${NC}"
+    echo -e "${YELLOW}⚠️  Execute this script from the project root directory${NC}"
     exit 1
 fi
 
-# Iniciar serviços em background
+# Start services in background
 start_service() {
     local name=$1
     local script=$2
     local dir=$3
     
-    echo -e "${BLUE}▶️  Iniciando $name...${NC}"
+    echo -e "${BLUE}▶️  Starting $name...${NC}"
     cd $dir
     nohup ./$script > /dev/null 2>&1 &
     cd ..
     sleep 1
-    echo -e "${GREEN}✅ $name iniciado${NC}"
+    echo -e "${GREEN}✅ $name started${NC}"
 }
 
-# Menu de inicialização
+# Launch menu
 while true; do
     clear
     echo -e "${BLUE}=== SFCC Environment Launcher ===${NC}"
     echo ""
-    echo "1. Iniciar API Server Simulator"
-    echo "2. Iniciar Monitoramento Automático"
-    echo "3. Iniciar Processamento em Lote"
-    echo "4. Iniciar Todos os Serviços"
-    echo "5. Ver Status dos Serviços"
-    echo "6. Parar Todos os Serviços"
-    echo "7. Iniciar Console Principal"
-    echo "8. Sair"
+    echo "1. Start API Server Simulator"
+    echo "2. Start Automatic Monitoring"
+    echo "3. Start Batch Processing"
+    echo "4. Start All Services"
+    echo "5. View Service Status"
+    echo "6. Stop All Services"
+    echo "7. Start Main Console"
+    echo "8. Exit"
     echo ""
     
-    read -p "Escolha: " choice
+    read -p "Choose: " choice
     
     case $choice in
         1) start_service "API Server" "api_server.sh" "backend" ;;
@@ -57,25 +57,25 @@ while true; do
             start_service "Auto Monitor" "auto_monitor.sh" "scripts"
             start_service "Batch Processor" "batch_processor.sh" "scripts"
             echo ""
-            echo -e "${GREEN}✅ Todos os serviços iniciados!${NC}"
+            echo -e "${GREEN}✅ All services started!${NC}"
             ;;
         5)
-            echo -e "${YELLOW}📊 Status dos Serviços:${NC}"
+            echo -e "${YELLOW}📊 Service Status:${NC}"
             echo ""
-            ps aux | grep -E "api_server|auto_monitor|batch_processor" | grep -v grep || echo "Nenhum serviço em execução"
+            ps aux | grep -E "api_server|auto_monitor|batch_processor" | grep -v grep || echo "No services running"
             ;;
         6)
-            echo "Parando serviços..."
+            echo "Stopping services..."
             pkill -f "api_server.sh"
             pkill -f "auto_monitor.sh"
             pkill -f "batch_processor.sh"
-            echo -e "${GREEN}✅ Serviços parados${NC}"
+            echo -e "${GREEN}✅ Services stopped${NC}"
             ;;
         7) ./scc_simulator.sh ;;
         8) exit 0 ;;
-        *) echo "Opção inválida" ;;
+        *) echo "Invalid option" ;;
     esac
     
     echo ""
-    read -p "Pressione Enter para continuar..."
+    read -p "Press Enter to continue..."
 done

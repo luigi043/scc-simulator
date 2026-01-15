@@ -1,26 +1,26 @@
 #!/bin/bash
 
-# Sistema de Reporting Avançado SFCC
-echo "📈 Sistema de Reporting do Salesforce Commerce Cloud"
+# SFCC Advanced Reporting System
+echo "📈 Salesforce Commerce Cloud Reporting System"
 echo ""
 
-# Cores
+# Colours
 BLUE='\033[0;34m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 PURPLE='\033[0;35m'
 NC='\033[0m'
 
-# Diretório de relatórios
+# Reports directory
 REPORT_DIR="../reports"
 mkdir -p "$REPORT_DIR"
 
 generate_daily_report() {
-    echo -e "${BLUE}📅 Gerando Relatório Diário...${NC}"
+    echo -e "${BLUE}📅 Generating Daily Report...${NC}"
     
     REPORT_FILE="$REPORT_DIR/daily_report_$(date +%Y%m%d).html"
     
-    # Coletar dados
+    # Collect data
     TOTAL_ORDERS=$(ls ../orders/*.json 2>/dev/null | wc -l)
     SUCCESSFUL_ORDERS=$(grep -l '"status":"PAID\|"status":"EXPORTED"' ../orders/*.json 2>/dev/null | wc -l)
     FAILED_ORDERS=$(grep -l '"status":"FAILED"' ../orders/*.json 2>/dev/null | wc -l)
@@ -32,7 +32,7 @@ generate_daily_report() {
     SUCCESS_RATE=$(echo "scale=1; $SUCCESSFUL_ORDERS * 100 / ($TOTAL_ORDERS ? $TOTAL_ORDERS : 1)" | bc)
     RESOLUTION_RATE=$(echo "scale=1; $RESOLVED_FAILURES * 100 / (($TOTAL_FAILURES + $RESOLVED_FAILURES) ? ($TOTAL_FAILURES + $RESOLVED_FAILURES) : 1)" | bc)
     
-    # Gerar relatório HTML
+    # Generate HTML report
     cat > "$REPORT_FILE" << EOF
 <!DOCTYPE html>
 <html>
@@ -83,7 +83,7 @@ generate_daily_report() {
         <ul>
 EOF
     
-    # Adicionar recomendações dinâmicas
+    # Add dynamic recommendations
     if [ "$FAILED_ORDERS" -gt 5 ]; then
         echo "<li>⚠️ Investigate payment gateway integration</li>" >> "$REPORT_FILE"
     fi
@@ -93,7 +93,7 @@ EOF
     fi
     
     if (( $(echo "$SUCCESS_RATE < 90" | bc -l) )); then
-        echo "<li>📉 Optimize order processing pipeline</li>" >> "$REPORT_FILE"
+        echo "<li>📉 Optimise order processing pipeline</li>" >> "$REPORT_FILE"
     fi
     
     cat >> "$REPORT_FILE" << EOF
@@ -109,11 +109,11 @@ EOF
 </html>
 EOF
     
-    echo -e "${GREEN}✅ Relatório gerado: $REPORT_FILE${NC}"
+    echo -e "${GREEN}✅ Report generated: $REPORT_FILE${NC}"
 }
 
 generate_sla_report() {
-    echo -e "${BLUE}⏱️ Gerando Relatório de SLA...${NC}"
+    echo -e "${BLUE}⏱️ Generating SLA Report...${NC}"
     
     REPORT_FILE="$REPORT_DIR/sla_report_$(date +%Y%m%d).csv"
     
@@ -128,14 +128,14 @@ generate_sla_report() {
         CREATED_TIME=$(grep -o '"timestamp":"[^"]*"' "$file" | cut -d'"' -f4)
         RESOLVED_TIME=$(stat -c %y "$file" | cut -d' ' -f1-2)
         
-        # Calcular tempo de resolução
+        # Calculate resolution time
         CREATED_EPOCH=$(date -d "${CREATED_TIME}" +%s 2>/dev/null || echo 0)
         RESOLVED_EPOCH=$(date -d "${RESOLVED_TIME}" +%s 2>/dev/null || echo 0)
         
         if [ $CREATED_EPOCH -gt 0 ] && [ $RESOLVED_EPOCH -gt 0 ]; then
             TIME_DIFF_MIN=$(( (RESOLVED_EPOCH - CREATED_EPOCH) / 60 ))
             
-            # Verificar SLA (30 minutos para HIGH, 60 para MEDIUM, 120 para LOW)
+            # Check SLA (30 minutes for HIGH, 60 for MEDIUM, 120 for LOW)
             case $SEVERITY in
                 "HIGH") SLA_LIMIT=30 ;;
                 "MEDIUM") SLA_LIMIT=60 ;;
@@ -152,11 +152,11 @@ generate_sla_report() {
         fi
     done
     
-    echo -e "${GREEN}✅ Relatório de SLA gerado: $REPORT_FILE${NC}"
+    echo -e "${GREEN}✅ SLA report generated: $REPORT_FILE${NC}"
 }
 
 generate_trend_analysis() {
-    echo -e "${BLUE}📊 Analisando tendências...${NC}"
+    echo -e "${BLUE}📊 Analysing trends...${NC}"
     
     REPORT_FILE="$REPORT_DIR/trend_analysis_$(date +%Y%m%d).txt"
     
@@ -168,7 +168,7 @@ generate_trend_analysis() {
         echo "📈 ORDER TRENDS"
         echo "---------------"
         
-        # Analisar tendência de ordens
+        # Analyse order trends
         for i in {6..0}; do
             DATE=$(date -d "$i days ago" +%Y-%m-%d)
             ORDERS_COUNT=$(find ../orders -name "*.json" -newermt "$DATE" ! -newermt "$(date -d "$((i-1)) days ago" +%Y-%m-%d)" 2>/dev/null | wc -l)
@@ -179,7 +179,7 @@ generate_trend_analysis() {
         echo "📉 FAILURE TRENDS"
         echo "----------------"
         
-        # Analisar tendência de falhas
+        # Analyse failure trends
         for i in {6..0}; do
             DATE=$(date -d "$i days ago" +%Y-%m-%d)
             FAILURES_COUNT=$(find ../failures -name "*.json" -newermt "$DATE" ! -newermt "$(date -d "$((i-1)) days ago" +%Y-%m-%d)" 2>/dev/null | wc -l)
@@ -190,7 +190,7 @@ generate_trend_analysis() {
         echo "💡 INSIGHTS"
         echo "-----------"
         
-        # Gerar insights
+        # Generate insights
         AVG_ORDERS=$(ls ../orders/*.json 2>/dev/null | wc -l)
         AVG_FAILURES=$(ls ../failures/*.json 2>/dev/null | wc -l)
         
@@ -199,7 +199,7 @@ generate_trend_analysis() {
             echo "Average Failure Rate: ${FAILURE_RATE}%"
             
             if [ $FAILURE_RATE -gt 10 ]; then
-                echo "⚠️  High failure rate detected. Consider system optimization."
+                echo "⚠️  High failure rate detected. Consider system optimisation."
             fi
         fi
         
@@ -207,22 +207,22 @@ generate_trend_analysis() {
         echo "🎯 PREDICTIONS"
         echo "-------------"
         
-        # Previsão simples baseada em média móvel
+        # Simple prediction based on moving average
         echo "Next 24h order prediction: $((AVG_ORDERS / 7)) orders"
         echo "Next 24h failure prediction: $((AVG_FAILURES / 7)) failures"
         
     } > "$REPORT_FILE"
     
-    echo -e "${GREEN}✅ Análise de tendências gerada: $REPORT_FILE${NC}"
+    echo -e "${GREEN}✅ Trend analysis generated: $REPORT_FILE${NC}"
 }
 
 show_report_dashboard() {
     clear
-    echo -e "${PURPLE}=== 📊 DASHBOARD DE RELATÓRIOS SFCC ===${NC}"
+    echo -e "${PURPLE}=== 📊 SFCC REPORTS DASHBOARD ===${NC}"
     echo ""
     
-    # Listar relatórios disponíveis
-    echo -e "${YELLOW}📁 RELATÓRIOS DISPONÍVEIS:${NC}"
+    # List available reports
+    echo -e "${YELLOW}📁 AVAILABLE REPORTS:${NC}"
     echo ""
     
     ls -1t "$REPORT_DIR"/*.html 2>/dev/null | head -5 | while read report; do
@@ -237,30 +237,30 @@ show_report_dashboard() {
     done
     
     echo ""
-    echo -e "${YELLOW}📈 ESTATÍSTICAS:${NC}"
+    echo -e "${YELLOW}📈 STATISTICS:${NC}"
     TOTAL_REPORTS=$(ls "$REPORT_DIR"/*.html "$REPORT_DIR"/*.csv 2>/dev/null | wc -l)
     TOTAL_SIZE=$(du -sh "$REPORT_DIR" 2>/dev/null | cut -f1 || echo "0")
     
-    echo "  Total de Relatórios: $TOTAL_REPORTS"
-    echo "  Espaço Utilizado: $TOTAL_SIZE"
+    echo "  Total Reports: $TOTAL_REPORTS"
+    echo "  Space Used: $TOTAL_SIZE"
 }
 
-# Menu principal
+# Main menu
 while true; do
     clear
-    echo -e "${BLUE}=== SISTEMA DE REPORTING AVANÇADO ===${NC}"
+    echo -e "${BLUE}=== ADVANCED REPORTING SYSTEM ===${NC}"
     echo ""
-    echo "1. Gerar Relatório Diário (HTML)"
-    echo "2. Gerar Relatório de SLA (CSV)"
-    echo "3. Análise de Tendências"
-    echo "4. Dashboard de Relatórios"
-    echo "5. Enviar Relatório por Email"
-    echo "6. Agendar Relatórios Automáticos"
-    echo "7. Limpar Relatórios Antigos"
-    echo "8. Voltar"
+    echo "1. Generate Daily Report (HTML)"
+    echo "2. Generate SLA Report (CSV)"
+    echo "3. Trend Analysis"
+    echo "4. Reports Dashboard"
+    echo "5. Send Report by Email"
+    echo "6. Schedule Automatic Reports"
+    echo "7. Clean Old Reports"
+    echo "8. Back"
     echo ""
     
-    read -p "Escolha (1-8): " choice
+    read -p "Choose (1-8): " choice
     
     case $choice in
         1) generate_daily_report ;;
@@ -268,32 +268,32 @@ while true; do
         3) generate_trend_analysis ;;
         4) show_report_dashboard ;;
         5)
-            echo "Simulando envio de email..."
+            echo "Simulating email sending..."
             LATEST_REPORT=$(ls -1t "$REPORT_DIR"/*.html 2>/dev/null | head -1)
             if [ -f "$LATEST_REPORT" ]; then
-                echo "Enviando $(basename "$LATEST_REPORT") para admin@company.com..."
+                echo "Sending $(basename "$LATEST_REPORT") to admin@company.com..."
                 sleep 2
-                echo -e "${GREEN}✅ Relatório enviado com sucesso!${NC}"
+                echo -e "${GREEN}✅ Report sent successfully!${NC}"
             else
-                echo "Nenhum relatório encontrado"
+                echo "No reports found"
             fi
             ;;
         6)
-            echo "Agendando relatórios automáticos..."
+            echo "Scheduling automatic reports..."
             echo "0 8 * * * $(pwd)/scripts/advanced_reporting.sh --daily" > /tmp/sfcc_reporting_cron
             echo "0 18 * * * $(pwd)/scripts/advanced_reporting.sh --sla" >> /tmp/sfcc_reporting_cron
-            echo -e "${GREEN}✅ Relatórios agendados para 8h e 18h diariamente${NC}"
+            echo -e "${GREEN}✅ Reports scheduled for 8am and 6pm daily${NC}"
             ;;
         7)
-            echo "Limpando relatórios com mais de 30 dias..."
+            echo "Cleaning reports older than 30 days..."
             find "$REPORT_DIR" -name "*.html" -mtime +30 -delete
             find "$REPORT_DIR" -name "*.csv" -mtime +30 -delete
-            echo -e "${GREEN}✅ Relatórios antigos removidos${NC}"
+            echo -e "${GREEN}✅ Old reports removed${NC}"
             ;;
         8) exit 0 ;;
-        *) echo "Opção inválida" ;;
+        *) echo "Invalid option" ;;
     esac
     
     echo ""
-    read -p "Pressione Enter para continuar..."
+    read -p "Press Enter to continue..."
 done

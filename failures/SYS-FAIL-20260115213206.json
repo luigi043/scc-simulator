@@ -1,0 +1,10 @@
+{
+    "failure_id": "SYS-FAIL-20260115213206",
+    "type": "INVENTORY_SYNC_FAILED",
+    "error_code": "ERR_549",
+    "error_message": "System failure in INVENTORY_SYNC_FAILED",
+    "severity": "HIGH",
+    "component": "sfcc-dw",
+    "timestamp": "2026-01-15T21:32:06Z",
+    "retry_count": 0
+}

@@ -1,0 +1,10 @@
+{
+    "failure_id": "SYS-FAIL-20260115213208",
+    "type": "INVENTORY_SYNC_FAILED",
+    "error_code": "ERR_517",
+    "error_message": "System failure in INVENTORY_SYNC_FAILED",
+    "severity": "MEDIUM",
+    "component": "sfcc-ocapi",
+    "timestamp": "2026-01-15T21:32:08Z",
+    "retry_count": 0
+}

@@ -1,15 +1,15 @@
 #!/bin/bash
 
-# Simulador de Webhooks SFCC
-echo "🔗 Simulador de Webhooks do Salesforce Commerce Cloud"
+# SFCC Webhook Simulator
+echo "🔗 Salesforce Commerce Cloud Webhook Simulator"
 echo ""
 
-# Configurações
+# Settings
 PORT=9090
 WEBHOOK_LOG="../logs/webhooks.log"
 EVENTS_DIR="../webhook_events"
 
-# Cores
+# Colours
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
@@ -18,7 +18,7 @@ NC='\033[0m'
 
 mkdir -p "$EVENTS_DIR"
 
-# Lista de webhooks suportados
+# List of supported webhooks
 WEBHOOK_ENDPOINTS=(
     "/webhooks/order/created"
     "/webhooks/order/updated"
@@ -29,7 +29,7 @@ WEBHOOK_ENDPOINTS=(
     "/webhooks/customer/created"
 )
 
-# Gerar payloads de exemplo
+# Generate example payloads
 generate_order_created_payload() {
     ORDER_ID="WEBHOOK-ORD-$(date +%s)$(shuf -i 1000-9999 -n 1)"
     
@@ -91,58 +91,58 @@ EOF
     echo "$EVENTS_DIR/${ORDER_ID}_payment.json"
 }
 
-# Simular recebimento de webhook
+# Simulate webhook reception
 simulate_webhook_reception() {
     local endpoint=$1
     local payload_file=$2
     
-    echo -e "${BLUE}🔄 Simulando webhook: $endpoint${NC}"
+    echo -e "${BLUE}🔄 Simulating webhook: $endpoint${NC}"
     
-    # Simular processamento
+    # Simulate processing
     sleep 0.5
     
-    # 20% chance de falha no webhook
+    # 20% chance of webhook failure
     if [ $((RANDOM % 5)) -eq 0 ]; then
-        echo -e "${RED}❌ Webhook falhou (simulação)${NC}"
+        echo -e "${RED}❌ Webhook failed (simulation)${NC}"
         STATUS="failed"
         RESPONSE_CODE=500
     else
-        echo -e "${GREEN}✅ Webhook processado com sucesso${NC}"
+        echo -e "${GREEN}✅ Webhook processed successfully${NC}"
         STATUS="processed"
         RESPONSE_CODE=200
     fi
     
-    # Registrar no log
+    # Log to file
     EVENT_TYPE=$(basename "$payload_file" | cut -d'_' -f2- | sed 's/.json//')
     echo "[$(date +'%Y-%m-%d %H:%M:%S')] WEBHOOK: $EVENT_TYPE - Status: $STATUS - Endpoint: $endpoint" >> "$WEBHOOK_LOG"
     
-    # Simular retry se falhou
+    # Simulate retry if failed
     if [ "$STATUS" = "failed" ]; then
-        echo -e "${YELLOW}🔄 Tentando retry em 2 segundos...${NC}"
+        echo -e "${YELLOW}🔄 Trying retry in 2 seconds...${NC}"
         sleep 2
         simulate_webhook_reception "$endpoint" "$payload_file"
     fi
 }
 
-# Dashboard de webhooks
+# Webhooks dashboard
 show_webhook_dashboard() {
     clear
-    echo -e "${BLUE}=== 🔗 DASHBOARD DE WEBHOOKS SFCC ===${NC}"
+    echo -e "${BLUE}=== 🔗 SFCC WEBHOOKS DASHBOARD ===${NC}"
     echo ""
     
-    # Estatísticas
+    # Statistics
     TOTAL_EVENTS=$(ls "$EVENTS_DIR"/*.json 2>/dev/null | wc -l)
     SUCCESSFUL_EVENTS=$(grep -c "Status: processed" "$WEBHOOK_LOG" 2>/dev/null)
     FAILED_EVENTS=$(grep -c "Status: failed" "$WEBHOOK_LOG" 2>/dev/null)
     
-    echo -e "${YELLOW}📊 ESTATÍSTICAS:${NC}"
-    echo "  Total de Eventos: $TOTAL_EVENTS"
-    echo "  Processados: $SUCCESSFUL_EVENTS"
-    echo "  Falhas: $FAILED_EVENTS"
+    echo -e "${YELLOW}📊 STATISTICS:${NC}"
+    echo "  Total Events: $TOTAL_EVENTS"
+    echo "  Processed: $SUCCESSFUL_EVENTS"
+    echo "  Failed: $FAILED_EVENTS"
     echo ""
     
-    # Últimos eventos
-    echo -e "${YELLOW}📋 ÚLTIMOS WEBHOOKS:${NC}"
+    # Latest events
+    echo -e "${YELLOW}📋 LATEST WEBHOOKS:${NC}"
     tail -10 "$WEBHOOK_LOG" 2>/dev/null | while read line; do
         if echo "$line" | grep -q "failed"; then
             echo -e "  ${RED}●${NC} $line"
@@ -152,22 +152,22 @@ show_webhook_dashboard() {
     done
 }
 
-# Menu principal
+# Main menu
 while true; do
     clear
-    echo -e "${BLUE}=== SIMULADOR DE WEBHOOKS SFCC ===${NC}"
+    echo -e "${BLUE}=== SFCC WEBHOOK SIMULATOR ===${NC}"
     echo ""
-    echo "1. Simular 'Order Created' Webhook"
-    echo "2. Simular 'Payment Processed' Webhook"
-    echo "3. Simular 'Payment Failed' Webhook"
-    echo "4. Simular 'Inventory Updated' Webhook"
-    echo "5. Dashboard de Webhooks"
-    echo "6. Testar Todos os Webhooks"
-    echo "7. Configurar Endpoints"
-    echo "8. Voltar"
+    echo "1. Simulate 'Order Created' Webhook"
+    echo "2. Simulate 'Payment Processed' Webhook"
+    echo "3. Simulate 'Payment Failed' Webhook"
+    echo "4. Simulate 'Inventory Updated' Webhook"
+    echo "5. Webhooks Dashboard"
+    echo "6. Test All Webhooks"
+    echo "7. Configure Endpoints"
+    echo "8. Back"
     echo ""
     
-    read -p "Escolha (1-8): " choice
+    read -p "Choose (1-8): " choice
     
     case $choice in
         1)
@@ -179,20 +179,20 @@ while true; do
             simulate_webhook_reception "/webhooks/payment/processed" "$PAYLOAD_FILE"
             ;;
         3)
-            echo -e "${YELLOW}Simulando falha de pagamento...${NC}"
+            echo -e "${YELLOW}Simulating payment failure...${NC}"
             sleep 1
-            echo -e "${RED}❌ Webhook de falha de pagamento enviado${NC}"
+            echo -e "${RED}❌ Payment failure webhook sent${NC}"
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] WEBHOOK: payment.failed - Status: processed" >> "$WEBHOOK_LOG"
             ;;
         4)
-            echo -e "${YELLOW}Simulando atualização de inventário...${NC}"
+            echo -e "${YELLOW}Simulating inventory update...${NC}"
             sleep 1
-            echo -e "${GREEN}✅ Webhook de inventário enviado${NC}"
+            echo -e "${GREEN}✅ Inventory webhook sent${NC}"
             echo "[$(date +'%Y-%m-%d %H:%M:%S')] WEBHOOK: inventory.updated - Status: processed" >> "$WEBHOOK_LOG"
             ;;
         5) show_webhook_dashboard ;;
         6)
-            echo "Testando todos os webhooks..."
+            echo "Testing all webhooks..."
             for endpoint in "${WEBHOOK_ENDPOINTS[@]}"; do
                 PAYLOAD_FILE=$(generate_order_created_payload)
                 simulate_webhook_reception "$endpoint" "$PAYLOAD_FILE"
@@ -200,15 +200,15 @@ while true; do
             done
             ;;
         7)
-            echo -e "${YELLOW}Endpoints de Webhook Configurados:${NC}"
+            echo -e "${YELLOW}Configured Webhook Endpoints:${NC}"
             for endpoint in "${WEBHOOK_ENDPOINTS[@]}"; do
                 echo "  POST http://localhost:$PORT$endpoint"
             done
             ;;
         8) exit 0 ;;
-        *) echo "Opção inválida" ;;
+        *) echo "Invalid option" ;;
     esac
     
     echo ""
-    read -p "Pressione Enter para continuar..."
+    read -p "Press Enter to continue..."
 done

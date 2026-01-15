@@ -1,21 +1,21 @@
 #!/bin/bash
 
-# API Server Simulator para SFCC
+# API Server Simulator for SFCC
 PORT=8080
 API_DIR="./api_responses"
 mkdir -p $API_DIR
 
-# Cores
+# Colours
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${BLUE}🚀 Iniciando Salesforce Commerce Cloud API Simulator...${NC}"
-echo -e "${BLUE}📡 Porta: $PORT${NC}"
+echo -e "${BLUE}🚀 Starting Salesforce Commerce Cloud API Simulator...${NC}"
+echo -e "${BLUE}📡 Port: $PORT${NC}"
 echo ""
 
-# Criar respostas de API pré-definidas
+# Create pre-defined API responses
 cat > "$API_DIR/ocapi_orders.json" << 'EOF'
 {
     "_v": "21.3",
@@ -57,14 +57,14 @@ cat > "$API_DIR/dw_inventory.json" << 'EOF'
 }
 EOF
 
-# Função para simular respostas da API
+# Function to simulate API responses
 simulate_api_response() {
     local endpoint=$1
     local method=$2
     
-    sleep 0.5  # Simular latência
+    sleep 0.5  # Simulate latency
     
-    # 30% chance de erro
+    # 30% chance of error
     if [ $((RANDOM % 10)) -lt 3 ]; then
         cat > /tmp/api_error.json << EOF
 {
@@ -97,19 +97,19 @@ EOF
     fi
 }
 
-# Servidor HTTP simples
-echo -e "${GREEN}✅ APIs Disponíveis:${NC}"
+# Simple HTTP server
+echo -e "${GREEN}✅ Available APIs:${NC}"
 echo "  GET  /s/-/dw/data/v21_3/orders/{id}  - OCAPI Order Details"
 echo "  GET  /inventory/{product_id}         - Inventory Check"
 echo "  POST /jobs/order-export              - Trigger Order Export"
 echo "  GET  /system/health                  - System Health Check"
 echo ""
 
-echo "Simulando APIs... Pressione Ctrl+C para parar"
+echo "Simulating APIs... Press Ctrl+C to stop"
 echo ""
 
 while true; do
-    # Simular tráfego de API
+    # Simulate API traffic
     for i in {1..10}; do
         ENDPOINTS=(
             "/s/-/dw/data/v21_3/orders/ORD-$(shuf -i 1000-9999 -n 1)"
@@ -124,18 +124,18 @@ while true; do
         
         echo -e "${BLUE}[$(date +'%H:%M:%S')]${NC} $METHOD $ENDPOINT"
         
-        # Simular tempo de resposta
+        # Simulate response time
         RESPONSE_TIME=$(echo "scale=2; $(shuf -i 50-2000 -n 1)/1000" | bc)
         sleep $RESPONSE_TIME
         
-        # Registrar no log
+        # Log to file
         echo "$(date +'%Y-%m-%d %H:%M:%S'),$METHOD,$ENDPOINT,$RESPONSE_TIME" >> "$API_DIR/api_traffic.log"
         
-        # 10% chance de falha crítica
+        # 10% chance of critical failure
         if [ $((RANDOM % 100)) -lt 10 ]; then
-            echo -e "${RED}⚠️  Simulando falha de API...${NC}"
+            echo -e "${RED}⚠️  Simulating API failure...${NC}"
             sleep 2
-            echo -e "${RED}❌ API Timeout após ${RESPONSE_TIME}s${NC}"
+            echo -e "${RED}❌ API Timeout after ${RESPONSE_TIME}s${NC}"
         fi
     done
     

@@ -1,24 +1,24 @@
 #!/bin/bash
 
-# Configurações do Salesforce Commerce Cloud Simulator
+# Salesforce Commerce Cloud Simulator Configuration
 
-# URLs da API (simuladas)
+# API URLs (simulated)
 export SFCC_API_URL="https://api.sandbox.salesforce.com"
 export SFCC_OCAPI_URL="https://sandbox.salesforce.com/s/Shopify/dw/shop/v21_3"
 
-# Configurações de retry
+# Retry settings
 export MAX_RETRY_COUNT=3
 export RETRY_DELAY=5
 
-# Configurações de log
+# Log settings
 export LOG_LEVEL="INFO" # DEBUG, INFO, WARN, ERROR
 export LOG_ROTATION_DAYS=7
 
-# Configurações de simulação
-export FAILURE_RATE=20 # porcentagem
-export AUTO_RETRY_SUCCESS_RATE=70 # porcentagem
+# Simulation settings
+export FAILURE_RATE=20 # percentage
+export AUTO_RETRY_SUCCESS_RATE=70 # percentage
 
-# Caminhos
+# Paths
 export BASE_DIR="./scc-simulator"
 export ORDERS_DIR="$BASE_DIR/orders"
 export FAILURES_DIR="$BASE_DIR/failures"
