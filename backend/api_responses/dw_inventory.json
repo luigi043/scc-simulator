@@ -1,0 +1,9 @@
+{
+    "inventory": {
+        "product_id": "prod-001",
+        "stock_level": 45,
+        "availability": "in_stock",
+        "reserved": 3,
+        "threshold": 10
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "failure_id": "FAIL-20260115194748-5276",
+    "order_id": "ORD-20260115-9017",
+    "type": "PAYMENT_FAILED",
+    "error_code": "PAY_161",
+    "error_message": "Payment processor declined transaction",
+    "timestamp": "2026-01-15T19:47:48Z",
+    "retry_count":1
+}

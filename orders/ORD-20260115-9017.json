@@ -1,0 +1,16 @@
+{
+    "order_id": "ORD-20260115-9017",
+    "customer_id": "CUST-24371",
+    "status": "FAILED",
+    "total": 0.00,
+    "items": 7,
+    "currency": "USD",
+    "created_at": "2026-01-15T19:47:17Z",
+    "payment_method": "credit_card",
+    "shipping_address": {
+        "street": "123 Main St",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94105"
+    }
+}

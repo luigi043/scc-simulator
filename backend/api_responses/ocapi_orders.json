@@ -1,0 +1,26 @@
+{
+    "_v": "21.3",
+    "_type": "order",
+    "order_no": "00000001",
+    "order_total": 129.99,
+    "currency": "USD",
+    "status": "created",
+    "payment_status": "paid",
+    "shipping_status": "not_shipped",
+    "billing_address": {
+        "address1": "123 Main St",
+        "city": "San Francisco",
+        "country_code": "US",
+        "first_name": "John",
+        "last_name": "Doe",
+        "phone": "555-1234"
+    },
+    "product_items": [
+        {
+            "product_id": "prod-001",
+            "product_name": "SFCC Hoodie",
+            "quantity": 2,
+            "price": 64.99
+        }
+    ]
+}
